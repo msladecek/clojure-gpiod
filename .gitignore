@@ -1,0 +1,5 @@
+.envrc
+.direnv
+lefthook.yml
+.clj-kondo
+.lsp
