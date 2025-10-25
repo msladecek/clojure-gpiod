@@ -94,6 +94,13 @@ value = #'(active|inactive)'")
                                         (apply concat)
                                         (into [])))})))))
 
+(defn ^:no-doc opts->cmdline-opts [opts]
+  (->> opts
+    (map (fn [[opt value]]
+           (if (= true value)
+             (str "--" (name opt))
+             (str "--" (name opt) "=" value))))))
+
 (defn get-lines
   "Adapter for `gpioget`.
 
@@ -105,8 +112,7 @@ value = #'(active|inactive)'")
   ([lines]
    (get-lines {:as-is true} lines))
   ([opts lines]
-   (let [cmdline-opts (cond-> []
-                        (:as-is opts) (conj "--as-is"))
+   (let [cmdline-opts (opts->cmdline-opts opts)
          command (into ["gpioget"] (concat cmdline-opts lines))
          result @(apply process {} command)]
      (if-not (zero? (:exit result))
@@ -129,9 +135,7 @@ value = #'(active|inactive)'")
   ([lines-and-values]
    (set-lines {} lines-and-values))
   ([opts lines-and-values]
-   (let [cmdline-opts (->> opts
-                        (map (fn [[opt value]]
-                               (str "--" (name opt) "=" value))))
+   (let [cmdline-opts (opts->cmdline-opts opts)
          command (->> lines-and-values
                    (map (fn [[line value]]
                           (str line "=" (if value "active" "inactive"))))
