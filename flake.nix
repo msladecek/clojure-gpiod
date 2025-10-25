@@ -50,7 +50,11 @@
               };
               nix-fmt = {
                 run = "nix fmt {staged_files}";
-                glob = "*.nix";
+                glob = [
+                  "*.nix"
+                  "*.cljc"
+                  "*.clj"
+                ];
               };
             };
             output = [

@@ -41,14 +41,14 @@
 (defn- jar-opts [opts]
   (let [version-opt (get opts :version version)]
     (assoc opts
-           :lib lib
-           :version version
-           :jar-file (format "target/%s-%s.jar" lib version-opt)
-           :basis (b/create-basis {})
-           :class-dir class-dir
-           :target "target"
-           :src-dirs ["src"]
-           :pom-data (pom-template version-opt))))
+      :lib lib
+      :version version
+      :jar-file (format "target/%s-%s.jar" lib version-opt)
+      :basis (b/create-basis {})
+      :class-dir class-dir
+      :target "target"
+      :src-dirs ["src"]
+      :pom-data (pom-template version-opt))))
 
 (defn build "Cleanup target location and build a fresh JAR" [opts]
   (let [opts (jar-opts opts)]

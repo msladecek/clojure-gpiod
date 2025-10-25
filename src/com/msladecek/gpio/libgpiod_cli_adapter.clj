@@ -5,9 +5,9 @@
   "
   (:refer-clojure :exclude [set!])
   (:require
-    [clojure.edn :as edn]
-    [babashka.process :refer [process]]
-    [instaparse.core :as insta]))
+   [clojure.edn :as edn]
+   [babashka.process :refer [process]]
+   [instaparse.core :as insta]))
 
 #_{:clj-kondo/ignore [:unresolved-symbol]}
 (insta/defparser ^:no-doc parser--get
@@ -45,18 +45,18 @@ value = #'(active|inactive)'")
   (let [result @(process {} "gpiodetect")]
     (if-not (zero? (:exit result))
       (throw (ex-info "subprocess failed"
-                      {:command ["gpiodetect"]
-                       :error (slurp (:err result))}))
+               {:command ["gpiodetect"]
+                :error (slurp (:err result))}))
       (->> (:out result)
-           (slurp)
-           (insta/parse parser--detect)
-           (insta/transform {:line-count edn/read-string
-                             :id #(subs % 1 (dec (count %)))
-                             :row (fn [chip id line-count]
-                                    {:chip chip
-                                     :id id
-                                     :line-count line-count})
-                             :rows vector})))))
+        (slurp)
+        (insta/parse parser--detect)
+        (insta/transform {:line-count edn/read-string
+                          :id #(subs % 1 (dec (count %)))
+                          :row (fn [chip id line-count]
+                                 {:chip chip
+                                  :id id
+                                  :line-count line-count})
+                          :rows vector})))))
 
 (defn info
   "Adapter for `gpioinfo`.
@@ -67,32 +67,32 @@ value = #'(active|inactive)'")
   (let [result @(process {} "gpioinfo")]
     (if-not (zero? (:exit result))
       (throw (ex-info "subprocess failed"
-                      {:command ["gpioinfo"]
-                       :error (slurp (:err result))}))
+               {:command ["gpioinfo"]
+                :error (slurp (:err result))}))
       (->> (:out result)
-           (slurp)
-           (insta/parse parser--info)
-           (insta/transform {:line-no edn/read-string
-                             :line-type keyword
-                             :label #(if (= \" (first %))
-                                       (subs % 1 (dec (count %)))
-                                       %)
-                             :consumer #(subs % 1 (dec (count %)))
-                             :line (fn transform-line
-                                     ([line-no label line-type]
-                                      (transform-line line-no label line-type nil))
-                                     ([line-no label line-type consumer]
-                                      (cond-> {:line-no line-no
-                                               :label label
-                                               :type line-type}
-                                        consumer (assoc :consumer consumer))))
-                             :section (fn [chip & lines]
-                                        (->> lines
-                                             (mapv #(assoc % :chip chip))))
-                             :sections (fn [& sections]
-                                         (->> sections
-                                              (apply concat)
-                                              (into [])))})))))
+        (slurp)
+        (insta/parse parser--info)
+        (insta/transform {:line-no edn/read-string
+                          :line-type keyword
+                          :label #(if (= \" (first %))
+                                    (subs % 1 (dec (count %)))
+                                    %)
+                          :consumer #(subs % 1 (dec (count %)))
+                          :line (fn transform-line
+                                  ([line-no label line-type]
+                                   (transform-line line-no label line-type nil))
+                                  ([line-no label line-type consumer]
+                                   (cond-> {:line-no line-no
+                                            :label label
+                                            :type line-type}
+                                     consumer (assoc :consumer consumer))))
+                          :section (fn [chip & lines]
+                                     (->> lines
+                                       (mapv #(assoc % :chip chip))))
+                          :sections (fn [& sections]
+                                      (->> sections
+                                        (apply concat)
+                                        (into [])))})))))
 
 (defn get-lines
   "Adapter for `gpioget`.
@@ -111,15 +111,15 @@ value = #'(active|inactive)'")
          result @(apply process {} command)]
      (if-not (zero? (:exit result))
        (throw (ex-info "subprocess failed"
-                       {:command command
-                        :error (slurp (:err result))}))
+                {:command command
+                 :error (slurp (:err result))}))
        (->> (:out result)
-            (slurp)
-            (insta/parse parser--get)
-            (insta/transform {:value {"inactive" false
-                                      "active" true}
-                              :pair vector
-                              :pairs (fn [& pairs] (into {} pairs))}))))))
+         (slurp)
+         (insta/parse parser--get)
+         (insta/transform {:value {"inactive" false
+                                   "active" true}
+                           :pair vector
+                           :pairs (fn [& pairs] (into {} pairs))}))))))
 
 (defn set-lines
   "Adapter for `gpioset`.
@@ -130,18 +130,18 @@ value = #'(active|inactive)'")
    (set-lines {} lines-and-values))
   ([opts lines-and-values]
    (let [cmdline-opts (->> opts
-                           (map (fn [[opt value]]
-                                  (str "--" (name opt) "=" value))))
+                        (map (fn [[opt value]]
+                               (str "--" (name opt) "=" value))))
          command (->> lines-and-values
-                     (map (fn [[line value]]
-                            (str line "=" (if value "active" "inactive"))))
-                     (concat cmdline-opts)
-                     (into ["gpioset"]))
+                   (map (fn [[line value]]
+                          (str line "=" (if value "active" "inactive"))))
+                   (concat cmdline-opts)
+                   (into ["gpioset"]))
          result @(apply process {} command)]
      (when-not (zero? (:exit result))
        (throw (ex-info "subprocess failed"
-                       {:command command
-                        :error (slurp (:err result))}))))))
+                {:command command
+                 :error (slurp (:err result))}))))))
 
 (defn set-lines-once
   "Same as set-lines but exit imediately after applying the new values."
