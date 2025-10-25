@@ -3,3 +3,5 @@
 lefthook.yml
 .clj-kondo
 .lsp
+target
+.cpcache
