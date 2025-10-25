@@ -98,7 +98,7 @@ value = #'(active|inactive)'")
   "Adapter for `gpioget`.
 
   Option `--as-is` is used by default to avoid resetting the lines.
-  You may override id with {:as-is false}.
+  You may override it with `{:as-is false}`.
 
   See https://libgpiod.readthedocs.io/en/latest/gpioget.html for more details.
   "
