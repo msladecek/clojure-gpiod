@@ -10,14 +10,14 @@
     [instaparse.core :as insta]))
 
 #_{:clj-kondo/ignore [:unresolved-symbol]}
-(insta/defparser parser--get
+(insta/defparser ^:no-doc parser--get
   "pairs = pair*
 pair = <'\"'> line <'\"='> value <#'[ \t\n]*'>
 <line> = #'[A-Z0-9]+'
 value = #'(active|inactive)'")
 
 #_{:clj-kondo/ignore [:unresolved-symbol]}
-(insta/defparser parser--detect
+(insta/defparser ^:no-doc parser--detect
   "rows = row*
   row = chip <' '> id <' ('> line-count <' lines)\n'>
   <chip> = #'\\S+'
@@ -25,7 +25,7 @@ value = #'(active|inactive)'")
   line-count = #'[0-9]+'")
 
 #_{:clj-kondo/ignore [:unresolved-symbol]}
-(insta/defparser parser--info
+(insta/defparser ^:no-doc parser--info
   "sections = section*
   section = header line*
   <header> = chip <#' - .*\n'>
