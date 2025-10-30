@@ -7,7 +7,7 @@
 ; clojure -A:deps -T:build help/doc
 
 (def lib 'com.msladecek/clojure-gpiod)
-(def version (format "0.1.%s" (b/git-count-revs nil)))
+(def version (format "0.2.%s" (b/git-count-revs nil)))
 (def class-dir "target/classes")
 
 (defn test "Run all the tests." [opts]
