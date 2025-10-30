@@ -31,7 +31,7 @@ value = #'(active|inactive)'")
   section = header line*
   <header> = chip <#' - .*\n'>
   <chip> = #'\\S+'
-  line = <#'\\s+line\\s+'> line-no <#':\\s+'> label <#'\\s+'> line-type (<' consumer='> consumer)? <'\n'>
+  line = <#'\\s+line\\s+'> line-no <#':\\s+'> label <#'\\s+'> line-type <#'.*\n'>
   line-no = #'[0-9]+'
   label = #'\\S+'
   line-type = #'(input|output)'
@@ -78,15 +78,10 @@ value = #'(active|inactive)'")
                           :label #(if (= \" (first %))
                                     (subs % 1 (dec (count %)))
                                     %)
-                          :consumer #(subs % 1 (dec (count %)))
-                          :line (fn transform-line
-                                  ([line-no label line-type]
-                                   (transform-line line-no label line-type nil))
-                                  ([line-no label line-type consumer]
-                                   (cond-> {:line-no line-no
-                                            :label label
-                                            :type line-type}
-                                     consumer (assoc :consumer consumer))))
+                          :line (fn [line-no label line-type]
+                                  (cond-> {:line-no line-no
+                                           :label label
+                                           :type line-type}))
                           :section (fn [chip & lines]
                                      (->> lines
                                        (mapv #(assoc % :chip chip))))

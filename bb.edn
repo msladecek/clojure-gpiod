@@ -26,4 +26,4 @@
          {:doc "Prints the output of gpioinfo in a nice table."
           :requires ([clojure.pprint :refer [print-table]]
                      [com.msladecek.gpio.libgpiod-cli-adapter :as gpio])
-          :task (print-table [:chip :line-no :label :type :consumer] (gpio/info))}}}
+          :task (print-table [:chip :line-no :label :type] (gpio/info))}}}
