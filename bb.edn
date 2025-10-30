@@ -2,7 +2,8 @@
  :deps {io.github.babashka/instaparse-bb {:git/tag "v0.0.6"
                                           :git/sha "0d0c88ec408ab675888f92819b8f8f32de602a91"}}
  :tasks {blinker
-         {:requires ([com.msladecek.gpio.libgpiod-cli-adapter :as gpio])
+         {:doc "Example for gpioset adapter. Sends a blinking signal to GPIO pin 17."
+          :requires ([com.msladecek.gpio.libgpiod-cli-adapter :as gpio])
           :task (let [line (or (first *command-line-args*) "GPIO17")]
                   (loop [state true]
                     (gpio/set-lines-once {line state})
@@ -10,16 +11,19 @@
                     (recur (not state))))}
 
          watcher
-         {:requires ([com.msladecek.gpio.libgpiod-cli-adapter :as gpio]
+         {:doc "Example for gpiomon adapter. Prints edge events happening on GPIO pin 3."
+          :requires ([com.msladecek.gpio.libgpiod-cli-adapter :as gpio]
                      [clojure.pprint :refer [pprint]])
           :task (gpio/monitor-lines pprint ["GPIO3"])}
 
          detect
-         {:requires ([clojure.pprint :refer [print-table]]
+         {:doc "Prints the output of gpiodetect in a nice table."
+          :requires ([clojure.pprint :refer [print-table]]
                      [com.msladecek.gpio.libgpiod-cli-adapter :as gpio])
           :task (print-table [:chip :id :line-count] (gpio/detect))}
 
          info
-         {:requires ([clojure.pprint :refer [print-table]]
+         {:doc "Prints the output of gpioinfo in a nice table."
+          :requires ([clojure.pprint :refer [print-table]]
                      [com.msladecek.gpio.libgpiod-cli-adapter :as gpio])
           :task (print-table [:chip :line-no :label :type :consumer] (gpio/info))}}}
