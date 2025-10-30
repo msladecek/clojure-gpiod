@@ -153,23 +153,23 @@ value = #'(active|inactive)'")
   (set-lines {:toggle "0s"} lines-and-values))
 
 #_:clj-kondo/ignore
-(defn monitor
+(defn monitor-lines
   "Adapter for `gpiomon`.
 
   See https://libgpiod.readthedocs.io/en/latest/gpiomon.html for more details.
   "
   ([callback lines]
-   (monitor {} callback lines))
+   (monitor-lines {} callback lines))
   ([opts callback lines]
    (throw (ex-info "not implemented" {}))))
 
 #_:clj-kondo/ignore
-(defn notify
+(defn notify-lines
   "Adapter for `gpionotify`.
 
   See https://libgpiod.readthedocs.io/en/latest/gpionotify.html for more details.
   "
   ([callback lines]
-   (notify {} callback lines))
+   (notify-lines {} callback lines))
   ([opts callback lines]
    (throw (ex-info "not implemented" {}))))
