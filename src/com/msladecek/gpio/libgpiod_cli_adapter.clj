@@ -3,8 +3,9 @@
 
   See https://libgpiod.readthedocs.io/en/latest/gpio_tools.html for details.
   "
-  (:refer-clojure :exclude [set!])
   (:require
+   [clojure.instant :refer [read-instant-date]]
+   [clojure.string :as string]
    [clojure.edn :as edn]
    [babashka.process :refer [process]]
    [instaparse.core :as insta]))
@@ -152,16 +153,58 @@ value = #'(active|inactive)'")
   [lines-and-values]
   (set-lines {:toggle "0s"} lines-and-values))
 
-#_:clj-kondo/ignore
+(defn ^:no-doc -trim-edge-event [message]
+  (first (string/split message #"\n")))
+
+(defn ^:no-doc -parse-edge-event [message {:keys [use-default-format parse-timestamp]}]
+  (if-not use-default-format
+    {:message (-trim-edge-event message)}
+    (let [message (-trim-edge-event message)
+          [timestamp-str chip line event-type-str] (string/split message #" ")]
+      {:timestamp (if parse-timestamp (read-instant-date timestamp-str) timestamp-str)
+       :line line
+       :chip chip
+       :event-type (keyword event-type-str)
+       :message message})))
+
 (defn monitor-lines
   "Adapter for `gpiomon`.
+
+  Optional arguments are passed along as if they were long command line options.
+  By default, the `callback` function will receive a map containing timestamp, line, chip,
+  event-type (:rising or :falling) and the raw message received on stdout.
+  If the event-clock option is specified, the timestamp will not be parsed, it will be a string.
+  If a custom output format is specified, the map will contain only the raw message.
 
   See https://libgpiod.readthedocs.io/en/latest/gpiomon.html for more details.
   "
   ([callback lines]
    (monitor-lines {} callback lines))
   ([opts callback lines]
-   (throw (ex-info "not implemented" {}))))
+   (let [cmdline-opts (opts->cmdline-opts
+                        (merge
+                          {:format "%U %c %l %E"
+                           :event-clock "realtime"}
+                          opts))
+         command (into ["gpiomon"] (concat cmdline-opts lines))
+         proc (apply process command)
+         stdout (:out proc)
+         parsing-callback (fn [message]
+                            (callback (-parse-edge-event message
+                                        {:use-default-format (nil? (:format opts))
+                                         :parse-timestamp (nil? (:event-clock opts))})))
+         reader-thread (Thread/new
+                         (fn []
+                           (loop []
+                             (let [buffer (byte-array 60)]
+                               (let [read-result (.read stdout buffer)]
+                                 (when (= -1 read-result)
+                                   (throw (ex-info "error reading output stream"
+                                            {:command command}))))
+                               (parsing-callback (String/new buffer))
+                               (recur)))))]
+     (.start reader-thread)
+     @proc)))
 
 #_:clj-kondo/ignore
 (defn notify-lines

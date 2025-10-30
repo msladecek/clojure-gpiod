@@ -9,6 +9,11 @@
                     (Thread/sleep 1000)
                     (recur (not state))))}
 
+         watcher
+         {:requires ([com.msladecek.gpio.libgpiod-cli-adapter :as gpio]
+                     [clojure.pprint :refer [pprint]])
+          :task (gpio/monitor-lines pprint ["GPIO3"])}
+
          detect
          {:requires ([clojure.pprint :refer [print-table]]
                      [com.msladecek.gpio.libgpiod-cli-adapter :as gpio])
