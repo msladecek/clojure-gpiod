@@ -210,6 +210,8 @@ value = #'(active|inactive)'")
 (defn notify-lines
   "Adapter for `gpionotify`.
 
+  NOT IMPLEMENTED YET
+
   See https://libgpiod.readthedocs.io/en/latest/gpionotify.html for more details.
   "
   ([callback lines]
