@@ -48,6 +48,7 @@
       :class-dir class-dir
       :target "target"
       :src-dirs ["src"]
+      :resource-dirs ["resources"]
       :pom-data (pom-template version-opt))))
 
 (defn build "Cleanup target location and build a fresh JAR" [opts]
